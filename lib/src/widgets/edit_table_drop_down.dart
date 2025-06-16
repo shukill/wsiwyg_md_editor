@@ -116,8 +116,13 @@ class _EditTableDropDownState extends State<EditTableDropDown> {
     }
 
     return WebViewAware(
-      child: Card(
-        color: widget.dropDownColor,
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        margin: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: widget.dropDownColor,
+          borderRadius: BorderRadius.circular(4),
+        ),
         child: InkWell(
           child: Padding(
             padding: const EdgeInsets.all(4.0),
@@ -239,9 +244,13 @@ class _EditTableDropDownState extends State<EditTableDropDown> {
           ));
     }
 
-    return SizedBox(
+    return Container(
       width: 200,
       height: MediaQuery.of(context).size.width < 450 ? 350 : null,
+      decoration: BoxDecoration(
+        color: widget.dropDownColor,
+        borderRadius: BorderRadius.circular(4),
+      ),
       child: ListView.builder(
         reverse: true,
         padding: EdgeInsets.zero,

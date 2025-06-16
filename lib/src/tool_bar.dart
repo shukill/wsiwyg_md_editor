@@ -254,9 +254,9 @@ class ToolBar extends StatefulWidget {
   ToolBar({
     this.direction = Axis.horizontal,
     this.alignment = WrapAlignment.start,
-    this.spacing = 0.0,
+    this.spacing = 4.0,
     this.runAlignment = WrapAlignment.start,
-    this.runSpacing = 0.0,
+    this.runSpacing = 4.0,
     this.crossAxisAlignment = WrapCrossAlignment.start,
     this.textDirection,
     this.verticalDirection = VerticalDirection.down,
@@ -265,10 +265,10 @@ class ToolBar extends StatefulWidget {
     required this.controller,
     this.customButtons,
     this.padding,
-    this.iconSize = 25,
-    this.iconColor = Colors.black,
-    this.activeIconColor = Colors.blue,
-    this.toolBarColor = Colors.white,
+    this.iconSize = 20,
+    this.iconColor = const Color(0xFF5F6368),
+    this.activeIconColor = const Color(0xFF1976D2),
+    this.toolBarColor = const Color(0xFFFAFAFA),
     this.mainAxisSize,
   })  : assert(crossAxisAlignment is WrapCrossAlignment,
             "Please pass WrapCrossAlignment, instead of CrossAxisAlignment"),
@@ -292,18 +292,18 @@ class ToolBar extends StatefulWidget {
     required this.controller,
     this.customButtons,
     this.padding,
-    this.iconSize = 25,
-    this.iconColor = Colors.black,
-    this.activeIconColor = Colors.blue,
-    this.toolBarColor = Colors.white,
+    this.iconSize = 20,
+    this.iconColor = const Color(0xFF5F6368),
+    this.activeIconColor = const Color(0xFF1976D2),
+    this.toolBarColor = const Color(0xFFFAFAFA),
     this.crossAxisAlignment = CrossAxisAlignment.start,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.mainAxisSize = MainAxisSize.min,
     this.textBaseline = TextBaseline.alphabetic,
   })  : assert(crossAxisAlignment is CrossAxisAlignment,
             "Please pass CrossAxisAlignment, instead of WrapCrossAlignment"),
-        spacing = 0.0,
-        runSpacing = 0.0,
+        spacing = 4.0,
+        runSpacing = 4.0,
         alignment = WrapAlignment.start,
         runAlignment = WrapAlignment.start,
         _isScrollable = true,
@@ -321,7 +321,7 @@ class ToolBarState extends State<ToolBar> {
   late GlobalKey<ElTooltipState> _fontBgColorKey;
   late GlobalKey<ElTooltipState> _fontColorKey;
   late GlobalKey<ElTooltipState> _tablePickerKey;
-  EdgeInsetsGeometry _buttonPadding = const EdgeInsets.all(6);
+  EdgeInsetsGeometry _buttonPadding = const EdgeInsets.all(8);
 
   @override
   void initState() {
@@ -334,6 +334,9 @@ class ToolBarState extends State<ToolBar> {
 
     if (widget.padding != null) {
       _buttonPadding = widget.padding!;
+    } else {
+      // Improved default padding for better visual spacing
+      _buttonPadding = const EdgeInsets.symmetric(horizontal: 8, vertical: 6);
     }
     if (widget.toolBarConfig == null || widget.toolBarConfig!.isEmpty) {
       for (var style in ToolBarStyle.values) {
@@ -369,7 +372,21 @@ class ToolBarState extends State<ToolBar> {
           width: double.maxFinite,
           decoration: BoxDecoration(
             color: widget.toolBarColor,
+            border: Border(
+              bottom: BorderSide(
+                color: Colors.grey.shade300,
+                width: 1,
+              ),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                offset: const Offset(0, 1),
+                blurRadius: 2,
+              ),
+            ],
           ),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: SingleChildScrollView(
             scrollDirection: widget.direction,
             child: Flex(
@@ -389,8 +406,15 @@ class ToolBarState extends State<ToolBar> {
       child: Container(
         width: double.maxFinite,
         decoration: BoxDecoration(
-          color: widget.toolBarColor,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              offset: const Offset(0, 1),
+              blurRadius: 2,
+            ),
+          ],
         ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Wrap(
           direction: widget.direction,
           alignment: widget.alignment,
@@ -653,29 +677,29 @@ class ToolBarState extends State<ToolBar> {
             )));
       } else if (toolbarItem.style == ToolBarStyle.separator) {
         if (widget.direction == Axis.horizontal) {
-          tempToolBarList.add(Tooltip(
-              waitDuration: const Duration(milliseconds: 800),
-              message: toolbarItem.style.name,
-              child: Padding(
-                padding: _buttonPadding,
-                child: Container(
-                  height: widget.iconSize,
-                  width: 0.8,
-                  color: widget.iconColor,
-                ),
-              )));
+          tempToolBarList.add(Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            child: Container(
+              height: widget.iconSize! + 4,
+              width: 1,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(0.5),
+              ),
+            ),
+          ));
         } else {
-          tempToolBarList.add(Tooltip(
-              waitDuration: const Duration(milliseconds: 800),
-              message: toolbarItem.style.name,
-              child: Padding(
-                padding: _buttonPadding,
-                child: Container(
-                  width: widget.iconSize,
-                  height: 0.8,
-                  color: widget.iconColor,
-                ),
-              )));
+          tempToolBarList.add(Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+            child: Container(
+              width: widget.iconSize! + 4,
+              height: 1,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(0.5),
+              ),
+            ),
+          ));
         }
       } else {
         tempToolBarList.add(Tooltip(
@@ -905,13 +929,13 @@ class ToolBarState extends State<ToolBar> {
   }
 
   DropdownMenuItem<String> _getAlignDDItem(String type) {
-    IconData icon = Icons.format_align_left;
+    IconData icon = Icons.format_align_left_rounded;
     if (type == 'center') {
-      icon = Icons.format_align_center;
+      icon = Icons.format_align_center_rounded;
     } else if (type == 'right') {
-      icon = Icons.format_align_right;
+      icon = Icons.format_align_right_rounded;
     } else if (type == 'justify') {
-      icon = Icons.format_align_justify;
+      icon = Icons.format_align_justify_rounded;
     }
     return DropdownMenuItem<String>(
       value: type,
@@ -949,32 +973,34 @@ class ToolBarState extends State<ToolBar> {
       ),
       child: Material(
         color: Colors.transparent,
-        child: SizedBox(
+        borderRadius: BorderRadius.circular(4),
+        child: Container(
           width: widget.iconSize,
           height: widget.iconSize,
+          padding: const EdgeInsets.all(2),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
-                child: Text(
-                  'A',
-                  maxLines: 1,
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: _formatMap['color'] != null
-                          ? widget.activeIconColor
-                          : widget.iconColor,
-                      fontSize: widget.iconSize! - 5),
+                child: Icon(
+                  Icons.palette_rounded,
+                  size: widget.iconSize! * 0.7,
+                  color: _formatMap['color'] != null
+                      ? widget.activeIconColor
+                      : widget.iconColor,
                 ),
               ),
               Container(
-                color: _formatMap['color'] != null
-                    ? HexColor.fromHex(_formatMap['color'])
-                    : Colors.black,
-                height: 3,
-                width: widget.iconSize! - 3,
+                decoration: BoxDecoration(
+                  color: _formatMap['color'] != null
+                      ? HexColor.fromHex(_formatMap['color'])
+                      : widget.iconColor,
+                  borderRadius: BorderRadius.circular(1),
+                ),
+                height: 2,
+                width: widget.iconSize! - 4,
               ),
             ],
           ),
@@ -1006,28 +1032,31 @@ class ToolBarState extends State<ToolBar> {
       ),
       child: Material(
         color: Colors.transparent,
+        borderRadius: BorderRadius.circular(4),
         child: Container(
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            border: Border.all(width: 0.1),
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(
+              color: Colors.grey.shade300,
+              width: 1,
+            ),
             color: _formatMap['background'] != null
                 ? HexColor.fromHex(_formatMap['background'])
                 : Colors.transparent,
           ),
           height: widget.iconSize,
           width: widget.iconSize,
-          child: FittedBox(
-            fit: BoxFit.fitHeight,
-            child: Text(
-              'A',
-              maxLines: 1,
-              style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: _formatMap['background'] != null
-                      ? widget.activeIconColor
-                      : widget.iconColor,
-                  fontSize: widget.iconSize! - 1),
-            ),
+          child: Icon(
+            Icons.format_color_fill_rounded,
+            size: widget.iconSize! * 0.7,
+            color: _formatMap['background'] != null
+                ? (HexColor.fromHex(_formatMap['background'])
+                            .computeLuminance() >
+                        0.5
+                    ? Colors.black87
+                    : Colors.white)
+                : widget.iconColor,
           ),
         ),
       ),
@@ -1048,7 +1077,12 @@ class ToolBarState extends State<ToolBar> {
         }
       },
       key: _tablePickerKey,
-      content: SizedBox(
+      content: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+        ),
         height: 200,
         child: TablePicker(
           onTablePicked: (int row, int column) {
@@ -1168,65 +1202,84 @@ class ToolBarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Tooltip(
-        waitDuration: const Duration(milliseconds: 800),
-        message: style.name,
+      waitDuration: const Duration(milliseconds: 600),
+      message: style.name,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(6),
         child: InkWell(
+          borderRadius: BorderRadius.circular(6),
           onTap: onTap,
-          child: Padding(
+          hoverColor: iconColor.withOpacity(0.08),
+          splashColor: iconColor.withOpacity(0.12),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
             padding: padding,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(6),
+              color: isActive
+                  ? (activeIconColor ?? iconColor).withOpacity(0.12)
+                  : Colors.transparent,
+              border: isActive
+                  ? Border.all(
+                      color: (activeIconColor ?? iconColor).withOpacity(0.3),
+                      width: 1,
+                    )
+                  : null,
+            ),
             child: SizedBox(child: _getIconByStyle(style)),
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   Widget _getIconByStyle(ToolBarStyle style) {
     switch (style) {
       case ToolBarStyle.bold:
-        return _getIconWidget(Icons.format_bold_sharp);
+        return _getIconWidget(Icons.format_bold_rounded);
       case ToolBarStyle.italic:
-        return _getIconWidget(Icons.format_italic_sharp);
+        return _getIconWidget(Icons.format_italic_rounded);
       case ToolBarStyle.underline:
-        return _getIconWidget(Icons.format_underline_sharp);
+        return _getIconWidget(Icons.format_underlined_rounded);
       case ToolBarStyle.strike:
-        return _getIconWidget(Icons.format_strikethrough_sharp);
+        return _getIconWidget(Icons.strikethrough_s_rounded);
       case ToolBarStyle.blockQuote:
-        return _getIconWidget(Icons.format_quote_sharp);
+        return _getIconWidget(Icons.format_quote_rounded);
       case ToolBarStyle.codeBlock:
-        return _getIconWidget(Icons.code_sharp);
+        return _getIconWidget(Icons.code_rounded);
       case ToolBarStyle.indentAdd:
-        //isActive = false;
-        return _getIconWidget(Icons.format_indent_increase_sharp);
+        return _getIconWidget(Icons.format_indent_increase_rounded);
       case ToolBarStyle.indentMinus:
-        //  isActive = false;
-        return _getIconWidget(Icons.format_indent_decrease_sharp);
+        return _getIconWidget(Icons.format_indent_decrease_rounded);
       case ToolBarStyle.directionRtl:
-        return _getIconWidget(Icons.format_textdirection_r_to_l_sharp);
+        return _getIconWidget(Icons.format_textdirection_r_to_l_rounded);
       case ToolBarStyle.directionLtr:
-        return _getIconWidget(Icons.format_textdirection_l_to_r_sharp);
+        return _getIconWidget(Icons.format_textdirection_l_to_r_rounded);
       case ToolBarStyle.color:
-        return _getIconWidget(Icons.format_bold_sharp);
+        return _getIconWidget(Icons.palette_rounded);
       case ToolBarStyle.align:
-        return _getIconWidget(Icons.format_align_left_sharp);
+        return _getIconWidget(Icons.format_align_left_rounded);
       case ToolBarStyle.clean:
-        return _getIconWidget(Icons.format_clear_sharp);
+        return _getIconWidget(Icons.format_clear_rounded);
       case ToolBarStyle.listOrdered:
-        return _getIconWidget(Icons.format_list_numbered_sharp);
+        return _getIconWidget(Icons.format_list_numbered_rounded);
       case ToolBarStyle.listBullet:
-        return _getIconWidget(Icons.format_list_bulleted_sharp);
+        return _getIconWidget(Icons.format_list_bulleted_rounded);
       case ToolBarStyle.headerOne:
-        return _getAssetImageWidget(ImageConstant.kiHeaderOneDarkPng);
+        return _getCustomHeaderWidget('H1');
       case ToolBarStyle.headerTwo:
-        return _getAssetImageWidget(ImageConstant.kiHeaderTwoDarkPng);
+        return _getCustomHeaderWidget('H2');
       case ToolBarStyle.background:
-        return _getIconWidget(Icons.font_download_sharp);
+        return _getIconWidget(Icons.format_color_fill_rounded);
       case ToolBarStyle.image:
-        return _getIconWidget(Icons.image);
+        return _getIconWidget(Icons.image_rounded);
       case ToolBarStyle.undo:
-        return _getIconWidget(Icons.undo_sharp);
+        return _getIconWidget(Icons.undo_rounded);
       case ToolBarStyle.redo:
-        return _getIconWidget(Icons.redo_sharp);
+        return _getIconWidget(Icons.redo_rounded);
       case ToolBarStyle.clearHistory:
-        return _getIconWidget(Icons.layers_clear_sharp);
+        return _getIconWidget(Icons.history_rounded);
       case ToolBarStyle.link:
       case ToolBarStyle.video:
       case ToolBarStyle.size:
@@ -1249,6 +1302,20 @@ class ToolBarItem extends StatelessWidget {
         child: Image.asset(
           imagePath,
           color: isActive ? activeIconColor : iconColor,
+        ),
+      );
+
+  Widget _getCustomHeaderWidget(String headerText) => Container(
+        width: iconSize,
+        height: iconSize,
+        alignment: Alignment.center,
+        child: Text(
+          headerText,
+          style: TextStyle(
+            fontSize: iconSize * 0.5,
+            fontWeight: FontWeight.bold,
+            color: isActive ? activeIconColor : iconColor,
+          ),
         ),
       );
 

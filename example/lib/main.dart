@@ -200,12 +200,12 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.black,
+          color: secondaryColor.withOpacity(0.1),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
         ),
         child: ToolBar(
-          toolBarColor: Colors.black,
+          toolBarColor: secondaryColor.withOpacity(0.1),
           padding: const EdgeInsets.symmetric(horizontal: 4),
           iconSize: 20,
           iconColor: textPrimary.withOpacity(0.9),
