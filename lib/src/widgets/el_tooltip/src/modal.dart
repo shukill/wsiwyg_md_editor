@@ -30,7 +30,7 @@ class Modal extends StatelessWidget {
       return GestureDetector(
         onTap: onTap,
         child: Container(
-          color: color.withOpacity(opacity),
+          color: color.withValues(alpha: opacity),
         ),
       );
     } else {

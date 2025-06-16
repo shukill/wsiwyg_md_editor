@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:core';
 
 import 'package:flutter/foundation.dart';
@@ -1294,15 +1296,6 @@ class ToolBarItem extends StatelessWidget {
         iconData,
         color: isActive ? activeIconColor : iconColor,
         size: iconSize,
-      );
-
-  Widget _getAssetImageWidget(String imagePath) => SizedBox(
-        width: iconSize,
-        height: iconSize,
-        child: Image.asset(
-          imagePath,
-          color: isActive ? activeIconColor : iconColor,
-        ),
       );
 
   Widget _getCustomHeaderWidget(String headerText) => Container(

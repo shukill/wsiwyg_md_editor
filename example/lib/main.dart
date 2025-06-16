@@ -36,7 +36,6 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
   static const Color secondaryColor = Color(0xFF8B5CF6); // Purple
   static const Color accentColor = Color(0xFF06B6D4); // Cyan
   static const Color surfaceColor = Color(0xFF1E293B); // Slate 800
-  static const Color cardColor = Color(0xFF334155); // Slate 700
   static const Color backgroundColor = Color(0xFF0F172A); // Slate 900
   static const Color textPrimary = Color(0xFFE2E8F0); // Slate 200
   static const Color textSecondary = Color(0xFF94A3B8); // Slate 400
@@ -141,7 +140,6 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
             children: [
               _buildModernToolbar(),
               Expanded(child: _buildEditorSection()),
-              _buildQuickActionsBar(),
             ],
           ),
         ),
@@ -214,38 +212,6 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
           crossAxisAlignment: WrapCrossAlignment.center,
           direction: Axis.horizontal,
           toolBarConfig: customToolBarList,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildToolbarAction({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: textSecondary, size: 16),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                color: textSecondary,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -343,111 +309,10 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildQuickActionsBar() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            decoration: BoxDecoration(
-              color: surfaceColor.withOpacity(0.8),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.1),
-                width: 1,
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildQuickAction('Undo', Icons.undo_rounded, primaryColor, () {
-                  controller.undo();
-                }),
-                _buildQuickAction('Redo', Icons.redo_rounded, accentColor, () {
-                  controller.redo();
-                }),
-                _buildQuickAction(
-                  'Clear',
-                  Icons.clear_all_sharp,
-                  secondaryColor,
-                  () {
-                    controller.clear();
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQuickAction(
-    String label,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap();
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [color.withOpacity(0.2), color.withOpacity(0.1)],
-          ),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.3), width: 1),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color, size: 16),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                color: color,
-                fontWeight: FontWeight.w600,
-                fontSize: 12,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: GoogleFonts.inter(
-            color: Colors.white,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        backgroundColor: surfaceColor,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
-  }
-
   ///[getHtmlText] to get the html text from editor
   void getHtmlText() async {
     String? htmlText = await controller.getText();
     debugPrint(htmlText);
-    _showSnackBar('HTML text copied to console');
   }
 
   ///[setHtmlText] to set the html text to editor
