@@ -16,29 +16,21 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   ##### For image picker widget
-  file_picker: ^6.1.1
+  file_picker: ^10.2.0
   ##### For webveiwx widget
   http: ^1.1.2
   path: ^1.9.0
   pointer_interceptor: ^0.10.1
   uuid: ^4.3.3
-  webview_flutter: ^4.4.4
-  webview_flutter_android: ^3.13.2
-  webview_flutter_platform_interface: ^2.9.0
-  webview_flutter_wkwebview: ^3.10.2
+  webview_flutter: ^4.9.0
+  webview_flutter_android: ^3.16.9
+  webview_flutter_platform_interface: ^2.10.0
+  webview_flutter_wkwebview: ^3.15.0
 
 dev_dependencies:
   flutter_lints: ^2.0.0
 
 flutter:
-  plugin:
-    platforms:
-      android:
-        default_package: quill_html_editor
-      ios:
-        default_package: quill_html_editor
-      web:
-        default_package: quill_html_editor
   assets:
       - packages/quill_html_editor/assets/camera_roll_icon.png
       - packages/quill_html_editor/assets/h1_dark.png
