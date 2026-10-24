@@ -6,6 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quill_html_editor/quill_html_editor.dart';
+// Note: Using internal import for ElTooltip - in production, consider implementing your own tooltip
+import 'package:quill_html_editor/src/widgets/el_tooltip/el_tooltip.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
+import 'virtual_keyboard_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +34,12 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
   late QuillEditorController controller;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+
+  // Virtual keyboard handler
+  final GlobalKey<VirtualKeyboardHandlerState> _keyboardKey = GlobalKey();
+
+  // Virtual keyboard state
+  bool _isVirtualKeyboardEnabled = true; // Default to virtual keyboard
 
   // Modern Design System Colors
   static const Color primaryColor = Color(0xFF6366F1); // Indigo
@@ -121,6 +131,18 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  // Virtual keyboard callbacks
+  void _onKeyboardModeChanged(bool isVirtual) {
+    setState(() {
+      _isVirtualKeyboardEnabled = isVirtual;
+    });
+  }
+
+  void _onKeyboardVisibilityChanged(bool isVisible) {
+    // This callback can be used to track keyboard visibility if needed
+    debugPrint('Virtual keyboard visibility changed: $isVisible');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -136,10 +158,32 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
           ),
         ),
         child: SafeArea(
-          child: Column(
+          child: Stack(
             children: [
-              _buildModernToolbar(),
-              Expanded(child: _buildEditorSection()),
+              Column(
+                children: [
+                  _buildModernToolbar(),
+                  Expanded(child: _buildEditorSection()),
+                  _buildVirtualKeyboard(),
+                ],
+              ),
+              // Virtual keyboard handler widget
+              VirtualKeyboardHandler(
+                key: _keyboardKey,
+                controller: controller,
+                onKeyboardModeChanged: _onKeyboardModeChanged,
+                onKeyboardVisibilityChanged: _onKeyboardVisibilityChanged,
+                theme: const VirtualKeyboardTheme(
+                  backgroundColor: surfaceColor,
+                  textColor: textPrimary,
+                  secondaryTextColor: textSecondary,
+                  iconColor: textPrimary,
+                  activeColor: accentColor,
+                  borderColor: Color(0x1AFFFFFF),
+                ),
+                keyboardType: VirtualKeyboardType.Alphanumeric,
+                supportedLayouts: const [VirtualKeyboardDefaultLayouts.English],
+              ),
             ],
           ),
         ),
@@ -152,8 +196,7 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
       elevation: 0,
       backgroundColor: Colors.transparent,
       systemOverlayStyle: SystemUiOverlayStyle.light,
-      title: // Status row
-          Row(
+      title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           AnimatedContainer(
@@ -185,9 +228,42 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
             ),
           ),
           const Spacer(),
+          // Keyboard mode indicator
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color:
+                  _isVirtualKeyboardEnabled
+                      ? accentColor.withOpacity(0.2)
+                      : textSecondary.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  _isVirtualKeyboardEnabled
+                      ? Icons.keyboard
+                      : Icons.keyboard_outlined,
+                  size: 14,
+                  color:
+                      _isVirtualKeyboardEnabled ? accentColor : textSecondary,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  _isVirtualKeyboardEnabled ? 'Virtual' : 'System',
+                  style: GoogleFonts.inter(
+                    color:
+                        _isVirtualKeyboardEnabled ? accentColor : textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
-
       centerTitle: true,
     );
   }
@@ -202,16 +278,46 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
         ),
-        child: ToolBar(
-          toolBarColor: secondaryColor.withOpacity(0.1),
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          iconSize: 20,
-          iconColor: textPrimary.withOpacity(0.9),
-          activeIconColor: accentColor,
-          controller: controller,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          direction: Axis.horizontal,
-          toolBarConfig: customToolBarList,
+        child: Row(
+          children: [
+            // Virtual keyboard toggle button using the handler
+            Container(
+              margin: const EdgeInsets.only(right: 8),
+              child: ElTooltip(
+                content: Text(
+                  _isVirtualKeyboardEnabled
+                      ? 'Switch to System Keyboard'
+                      : 'Switch to Virtual Keyboard',
+                  style: GoogleFonts.inter(fontSize: 12),
+                ),
+                onTap: () {}, // Required parameter
+                child:
+                    _keyboardKey.currentState?.getKeyboardToggleButton() ??
+                    const SizedBox(),
+              ),
+            ),
+            // Vertical separator
+            Container(
+              width: 1,
+              height: 24,
+              color: Colors.white.withOpacity(0.1),
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+            ),
+            // Standard toolbar
+            Expanded(
+              child: ToolBar(
+                toolBarColor: secondaryColor.withOpacity(0.1),
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                iconSize: 20,
+                iconColor: textPrimary.withOpacity(0.9),
+                activeIconColor: accentColor,
+                controller: controller,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                direction: Axis.horizontal,
+                toolBarConfig: customToolBarList,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -238,8 +344,17 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
               child: QuillHtmlEditor(
                 text: """
                 <div style='background-color: #1E293B; color: #E2E8F0; font-family: Inter, sans-serif; padding: 16px; border-radius: 16px;'>
-                  <h1 style='color: #E2E8F0; font-family: Inter, sans-serif; margin: 0 0 16px 0;'>Welcome to Premium Editor</h1>
-                  <p style='color: #94A3B8; font-family: Inter, sans-serif; margin: 0; line-height: 1.6;'>Experience the future of rich text editing with our modern, professional interface. ✨</p>
+                  <h1 style='color: #E2E8F0; font-family: Inter, sans-serif; margin: 0 0 16px 0;'>Welcome to Premium Editor with Virtual Keyboard</h1>
+                  <p style='color: #94A3B8; font-family: Inter, sans-serif; margin: 0; line-height: 1.6;'>Experience the future of rich text editing with our modern interface and virtual keyboard support. Toggle between virtual and system keyboard using the keyboard icon in the toolbar. The virtual keyboard will appear when you focus on the editor. ✨</p>
+                  <br />
+                  <p style='color: #94A3B8; font-family: Inter, sans-serif; margin: 0; line-height: 1.6;'><strong>Features:</strong></p>
+                  <ul style='color: #94A3B8; font-family: Inter, sans-serif; margin: 8px 0; padding-left: 20px;'>
+                    <li>Toggle between virtual and system keyboards</li>
+                    <li>Multi-language support (English default, extendable)</li>
+                    <li>Standardized integration functions</li>
+                    <li>Modern UI with smooth animations</li>
+                    <li>Customizable keyboard themes</li>
+                  </ul>
                 </div>
                 """,
                 hintText: 'Start crafting your masterpiece...',
@@ -289,12 +404,19 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                 onFocusChanged: (focus) {
                   setState(() {
                     _hasFocus = focus;
+                    if (_isVirtualKeyboardEnabled && focus) {
+                      _keyboardKey.currentState?.showKeyboard();
+                    } else {
+                      _keyboardKey.currentState?.hideKeyboard();
+                    }
                   });
                 },
                 onTextChanged: (text) => debugPrint('widget text change $text'),
                 onEditorCreated: () {
                   debugPrint('Editor has been loaded');
-                  setHtmlText('Welcome to the premium editor experience!');
+                  setHtmlText(
+                    'Welcome to the premium editor experience with virtual keyboard support!',
+                  );
                 },
                 onEditorResized:
                     (height) => debugPrint('Editor resized $height'),
@@ -307,6 +429,15 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
         ),
       ),
     );
+  }
+
+  Widget _buildVirtualKeyboard() {
+    // Use the keyboard handler's virtual keyboard widget
+    final keyboardWidget = _keyboardKey.currentState?.getVirtualKeyboard();
+    if (keyboardWidget != null) {
+      return keyboardWidget;
+    }
+    return const SizedBox.shrink();
   }
 
   ///[getHtmlText] to get the html text from editor
